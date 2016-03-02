@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Reaction Test</title>
+  <meta charset="utf-8"/>
+  <script type="application/javascript">
+    function draw() {
+		var canvas = document.getElementById("canvas");
+        var timeoutListener;
+		function start(){
+			if (wakeup == 0){
+				wakeup = 1;
+			}
+			window.clearTimeout(timeoutListener);
+			triggered = 0;
+			ctx.fillStyle = "rgb(200,0,0)";
+			ctx.fillRect (10, 10, (window.innerWidth - 50), (window.innerHeight - 200));
+			ctx.font = "30px Times New Roman";
+			ctx.fillStyle = "black";
+			ctx.textAlign = "center";
+			ctx.fillText("Don't click yet!", canvas.width/2, canvas.height/2);
+			timeoutListener = window.setTimeout(trigger, 1500+(Math.random()*5500));
+		}
+		function trigger(){
+			triggered = 1;
+			ctx.fillStyle = "rgb(0,200,0)";
+			ctx.fillRect (10, 10, (window.innerWidth - 50), (window.innerHeight - 200));
+			ctx.font = "30px Times New Roman";
+			ctx.fillStyle = "black";
+			ctx.textAlign = "center";
+			ctx.fillText("Click now!", canvas.width/2, canvas.height/2);
+			var d = new Date();
+			n1 = d.getTime();
+		}
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+			var color = 1;
+			var triggered = 0;
+			var wakeup = 0;
+			var highscore = localStorage.getItem("highscore");
+			if (!highscore){
+				highscore = -1;
+			}
+			else{
+				document.getElementById("highscore").innerHTML = "Highscore: " + highscore;
+			}
+			ctx.canvas.width  = (window.innerWidth - 40);
+			ctx.canvas.height = (window.innerHeight -190);
+			ctx.fillStyle = "rgb(0,0,200)";
+			ctx.fillRect (10, 10, (window.innerWidth - 50), (window.innerHeight - 200));
+			ctx.font = "30px Times New Roman";
+			ctx.fillStyle = "black";
+			ctx.textAlign = "center";
+			ctx.fillText("Click me to start test", canvas.width/2, canvas.height/2);
+		}
+		canvas.addEventListener('click', function() { 
+			if (triggered == 1){
+				d = new Date();
+				n2 = d.getTime();
+				diff = ((n2-n1)/1000);
+				document.getElementById("num").innerHTML = diff;
+				if (highscore == -1 || diff < highscore){
+					highscore = diff;
+					document.getElementById("highscore").innerHTML = "Highscore: " + diff;
+					localStorage.setItem("highscore", highscore);
+				}
+			}
+			else{
+				if (wakeup == 1){
+					document.getElementById("num").innerHTML = "Failure!";
+				}
+			}
+			start();
+		});
+    }
+  </script>
+ </head>
+ <body onload="draw();">
+   <canvas id="canvas" width="2000" height="1000"></canvas>
+   <h3 id="num">0</h3>
+   <h3 id="highscore">Highscore: </h3>
+ </body>
+</html>
