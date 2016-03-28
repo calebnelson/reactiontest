@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <style>
+#layout { width: 98vw; height: 98vh; padding: 2px; margin: 2px; }
+#gamer  { height: 80%; }
+#game   { font-size: 8vmin; text-align: center; vertical-align: middle; }
+#highr  { height: 10%; background-color: #D0F0F0; }
+#high   { font-size: 4vh; padding-left: 3vw; }
+#diffr  { height: 10%; background-color: #F0D0F0; }
+#diff   { font-size: 4vh; padding-left: 3vw; }
+  </style>
+  <title>Reaction Test</title>
+  <script type="application/javascript">
+    function onload() {
+	var ndGame = document.getElementById("game");
+	var ndHigh = document.getElementById("high");
+	var ndDiff = document.getElementById("diff");
+	var gState    = 0;    // 0=not begun, 1:user should be waiting, 2:user should be clicking
+	var highscore = 0;    // highscore across all time
+	var timeBeg   = 0;    // Beginning of current game
+	var triggerCB = null; // Timer event handler during game, cleared on click
+        var recent    = [];   // array of recent scores, newest first
+ 
+	// Called to begin a session
+	function begSession() {
+            window.clearTimeout(triggerCB);
+            ndGame.style.backgroundColor = "cyan";
+	    ndGame.innerHTML = "Click to start test";
+	    gState = 0;
+	}
+	// Called to start the game
+	function begGame(){
+            window.clearTimeout(triggerCB);
+            ndGame.style.backgroundColor = "red";
+            ndGame.innerHTML = "Don't click yet!";
+	    delay = 1500+(Math.random()*5500);
+            triggerCB = window.setTimeout(trigger, delay);
+            gState = 1;
+	}
+	// Called when timer expires
+	function trigger(){
+            ndGame.style.backgroundColor = "green";
+            ndGame.innerHTML = "Click now!";
+            timeBeg = Date.now()
+            gState = 2;
+	}
+	// Called when user clicks
+	function click() {
+	    if (gState == 0) {
+		begGame();
+	    } else if (gState == 1) {
+		ndDiff.innerHTML = "Failure!";
+		begSession();
+	    } else if (gState == 2) { 
+		diff = ((Date.now()-timeBeg)/1000);
+	        recent.unshift(diff);
+		if (highscore <= 0 || diff < highscore){
+		    highscore = diff;
+		    localStorage.setItem("highscore", highscore);
+		    ndHigh.innerHTML = "Best: " + diff;
+		}
+		ndDiff.innerHTML = "Current: " + recent.slice(0,6).join("&nbsp;&nbsp;");
+		begGame();
+	    } else {
+		ndGame.innerHTML = "Unknown State: " + gState;
+	    }
+	}
+
+	// Code executed once on page load
+	var highscore = localStorage.getItem("highscore");
+	if (highscore > 0) {
+	    recent.unshift(highscore);
+            ndHigh.innerHTML = "Best: " + highscore;
+	}
+	ndGame.addEventListener('click', click);
+	begSession()
+    }
+  </script>
+ </head>
+ <body onload="onload();">
+   <table id='layout' border=0>
+     <tr id='gamer'><td id='game'>game</td></tr>
+     <tr id='highr'><td id='high'>best time</td></tr>
+     <tr id='diffr'><td id='diff'>current time</td></tr>
+   </table>
+ </body>
+</html>
